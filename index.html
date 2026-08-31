@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VesEvoL — documentation</title>
+<meta name="description" content="VesEvoL — Vesicle Evolution over Long time — documentation">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0d0f;
+  --bg-raised:#111418;
+  --bg-inset:#0e1013;
+  --border:#22262b;
+  --border-soft:#1a1d21;
+  --text:#e7e5e0;
+  --text-dim:#9298a1;
+  --text-faint:#5c6169;
+  --accent:#e0a458;
+  --accent-dim:#8a6a3d;
+  --ok:#6fae8f;
+  --warn:#d98a5f;
+  --mono:'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --sans:'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  font-size:16px;
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--accent-dim);color:#0b0d0f;}
+
+a{color:var(--accent);text-decoration:none;border-bottom:1px solid transparent;}
+a:hover{border-bottom-color:var(--accent);}
+
+code, pre, .mono{font-family:var(--mono);}
+
+/* ---------- layout shell ---------- */
+.shell{display:flex;max-width:1280px;margin:0 auto;}
+
+/* sidebar */
+.side{
+  width:248px;
+  flex-shrink:0;
+  position:sticky;
+  top:0;
+  align-self:flex-start;
+  height:100vh;
+  overflow-y:auto;
+  padding:28px 20px 40px 28px;
+  border-right:1px solid var(--border-soft);
+}
+.side::-webkit-scrollbar{width:6px;}
+.side::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+.brand{
+  font-family:var(--mono);
+  font-size:14px;
+  color:var(--text);
+  margin-bottom:4px;
+}
+.brand span{color:var(--accent);}
+.brand-sub{
+  font-size:12px;
+  color:var(--text-faint);
+  margin-bottom:26px;
+}
+
+.navgroup{margin-bottom:22px;}
+.navgroup-label{
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--text-faint);
+  letter-spacing:.02em;
+  margin-bottom:8px;
+}
+.navgroup a{
+  display:block;
+  font-size:13.5px;
+  color:var(--text-dim);
+  padding:5px 0 5px 12px;
+  border-left:2px solid var(--border-soft);
+  border-bottom:none;
+  transition:color .15s, border-color .15s;
+}
+.navgroup a:hover{color:var(--text);border-left-color:var(--text-faint);}
+.navgroup a.active{color:var(--accent);border-left-color:var(--accent);}
+
+.side-foot{
+  margin-top:30px;
+  padding-top:16px;
+  border-top:1px solid var(--border-soft);
+  font-size:12px;
+  color:var(--text-faint);
+  font-family:var(--mono);
+}
+.side-foot a{color:var(--text-dim);}
+.side-foot a:hover{color:var(--accent);}
+
+/* main */
+main{flex:1;min-width:0;padding:48px 56px 120px;max-width:860px;}
+section{scroll-margin-top:24px;}
+
+.kicker{
+  font-family:var(--mono);
+  font-size:12px;
+  color:var(--accent);
+  margin:0 0 10px;
+}
+h1{
+  font-size:38px;
+  line-height:1.15;
+  margin:0 0 14px;
+  letter-spacing:-.01em;
+}
+h2{
+  font-family:var(--mono);
+  font-size:22px;
+  margin:64px 0 6px;
+  padding-bottom:12px;
+  border-bottom:1px solid var(--border-soft);
+  display:flex;
+  align-items:baseline;
+  gap:10px;
+}
+h2 .num{color:var(--accent);font-size:15px;}
+h3{
+  font-size:17px;
+  margin:32px 0 8px;
+  color:var(--text);
+}
+h4.fn{
+  font-family:var(--mono);
+  font-size:14.5px;
+  color:var(--text);
+  background:var(--bg-inset);
+  border:1px solid var(--border-soft);
+  border-left:2px solid var(--accent-dim);
+  padding:8px 12px;
+  border-radius:3px;
+  margin:22px 0 8px;
+}
+h4.fn .tag{
+  font-family:var(--sans);
+  font-size:10.5px;
+  color:var(--warn);
+  border:1px solid var(--warn);
+  border-radius:10px;
+  padding:1px 7px;
+  margin-left:8px;
+  vertical-align:1px;
+}
+p{color:var(--text-dim);margin:0 0 14px;max-width:74ch;}
+p strong{color:var(--text);font-weight:600;}
+ul,ol{color:var(--text-dim);max-width:74ch;padding-left:20px;margin:0 0 16px;}
+li{margin-bottom:5px;}
+li code{color:var(--text);}
+
+.lede{
+  font-size:17px;
+  color:var(--text-dim);
+  max-width:64ch;
+  margin-bottom:22px;
+}
+
+/* code blocks */
+pre{
+  background:var(--bg-inset);
+  border:1px solid var(--border-soft);
+  border-radius:6px;
+  padding:16px 18px;
+  overflow-x:auto;
+  font-size:13px;
+  line-height:1.6;
+  color:#dcd8cf;
+  margin:0 0 18px;
+}
+code.inline, p code, li code, td code{
+  background:var(--bg-inset);
+  border:1px solid var(--border-soft);
+  border-radius:4px;
+  padding:1px 6px;
+  font-size:.87em;
+  color:#e6c58a;
+}
+pre code{background:none;border:none;padding:0;color:inherit;}
+.cmt{color:var(--text-faint);}
+.str{color:var(--ok);}
+.kw{color:var(--accent);}
+
+/* terminal window (hero) */
+.term{
+  background:var(--bg-inset);
+  border:1px solid var(--border-soft);
+  border-radius:8px;
+  overflow:hidden;
+  margin:26px 0 8px;
+  box-shadow:0 20px 50px -20px rgba(0,0,0,.6);
+}
+.term-bar{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:9px 12px;
+  background:#0e1013;
+  border-bottom:1px solid var(--border-soft);
+}
+.term-dot{width:9px;height:9px;border-radius:50%;background:#2a2e34;}
+.term-title{
+  margin-left:8px;
+  font-family:var(--mono);
+  font-size:11.5px;
+  color:var(--text-faint);
+}
+.term-body{padding:16px 18px;font-family:var(--mono);font-size:13px;line-height:1.75;}
+.term-body .p{color:var(--accent);}
+.term-body .out{color:var(--text-dim);}
+.term-body .ok{color:var(--ok);}
+
+/* status table */
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin:0 0 22px;
+  font-size:14px;
+}
+th,td{
+  text-align:left;
+  padding:9px 12px;
+  border-bottom:1px solid var(--border-soft);
+  vertical-align:top;
+}
+th{
+  font-family:var(--mono);
+  font-size:11.5px;
+  color:var(--text-faint);
+  font-weight:500;
+  letter-spacing:.02em;
+}
+td{color:var(--text-dim);}
+td:first-child, th:first-child{padding-left:0;}
+
+.status{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-family:var(--mono);
+  font-size:12px;
+}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.dot.ok{background:var(--ok);}
+.dot.pending{background:var(--warn);}
+
+/* pipeline flow */
+.flow{display:flex;flex-direction:column;gap:0;margin:24px 0 30px;}
+.flow-step{
+  display:grid;
+  grid-template-columns:40px 1fr;
+  gap:16px;
+  position:relative;
+  padding-bottom:26px;
+}
+.flow-step:last-child{padding-bottom:0;}
+.flow-step:not(:last-child)::before{
+  content:"";
+  position:absolute;
+  left:19px;
+  top:38px;
+  bottom:0;
+  width:1px;
+  background:var(--border);
+}
+.flow-num{
+  width:40px;height:40px;
+  border:1px solid var(--border);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);
+  font-size:13px;
+  color:var(--accent);
+  background:var(--bg-inset);
+  z-index:1;
+}
+.flow-content h3{margin:6px 0 4px;font-size:15.5px;}
+.flow-content p{margin-bottom:4px;font-size:14.5px;}
+.flow-content .src{
+  font-family:var(--mono);
+  font-size:11.5px;
+  color:var(--text-faint);
+}
+
+/* module tabs */
+.tabs{display:flex;gap:6px;margin:20px 0 4px;flex-wrap:wrap;border-bottom:1px solid var(--border-soft);}
+.tab{
+  font-family:var(--mono);
+  font-size:12.5px;
+  color:var(--text-dim);
+  background:none;
+  border:1px solid var(--border-soft);
+  border-bottom:none;
+  border-radius:6px 6px 0 0;
+  padding:8px 14px;
+  cursor:pointer;
+}
+.tab.active{color:var(--accent);background:var(--bg-inset);border-color:var(--border-soft);}
+.tabpanel{display:none;padding-top:6px;}
+.tabpanel.active{display:block;}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:8px;}
+@media (max-width:640px){.grid2{grid-template-columns:1fr;}}
+
+.callout{
+  border:1px solid var(--border-soft);
+  border-left:3px solid var(--accent-dim);
+  background:var(--bg-raised);
+  border-radius:0 6px 6px 0;
+  padding:14px 18px;
+  margin:0 0 20px;
+  font-size:14.5px;
+  color:var(--text-dim);
+}
+.callout strong{color:var(--accent);}
+
+.pill-row{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 26px;}
+.pill{
+  font-family:var(--mono);
+  font-size:12px;
+  color:var(--text-dim);
+  border:1px solid var(--border-soft);
+  border-radius:20px;
+  padding:5px 12px;
+}
+
+hr.rule{border:none;border-top:1px solid var(--border-soft);margin:44px 0;}
+
+footer.page{
+  max-width:860px;
+  padding:0 56px 60px;
+  color:var(--text-faint);
+  font-family:var(--mono);
+  font-size:12.5px;
+}
+footer.page a{color:var(--text-dim);}
+
+/* mobile */
+.menu-btn{display:none;}
+@media (max-width:900px){
+  .side{
+    position:fixed;
+    z-index:50;
+    left:0;top:0;
+    height:100vh;
+    background:var(--bg);
+    transform:translateX(-100%);
+    transition:transform .2s ease;
+    width:80vw;
+    max-width:300px;
+  }
+  .side.open{transform:translateX(0);}
+  main{padding:56px 22px 100px;}
+  footer.page{padding:0 22px 60px;}
+  .menu-btn{
+    display:flex;
+    position:fixed;
+    top:16px;left:16px;
+    z-index:60;
+    width:38px;height:38px;
+    border:1px solid var(--border);
+    background:var(--bg-raised);
+    border-radius:6px;
+    align-items:center;justify-content:center;
+    font-family:var(--mono);
+    color:var(--text);
+    cursor:pointer;
+  }
+  .grid2{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<button class="menu-btn" id="menuBtn" aria-label="Toggle navigation">☰</button>
+
+<div class="shell">
+  <aside class="side" id="side">
+    <div class="brand">~/<span>VesEvoL</span></div>
+    <div class="brand-sub">documentation · v0.1.0 · supplementary release</div>
+
+    <div class="navgroup">
+      <div class="navgroup-label">start</div>
+      <a href="#overview">Overview</a>
+      <a href="#status">Repository status</a>
+      <a href="#install">Installation</a>
+      <a href="#usage">Usage</a>
+    </div>
+
+    <div class="navgroup">
+      <div class="navgroup-label">pipeline</div>
+      <a href="#pipeline">Stage-by-stage flow</a>
+      <a href="#config">Configuration flags</a>
+      <a href="#outputs">Outputs & columns</a>
+    </div>
+
+    <div class="navgroup">
+      <div class="navgroup-label">reference</div>
+      <a href="#ref-main">main.py</a>
+      <a href="#ref-mother">mother_detection.py</a>
+      <a href="#ref-daughter">detect_and_track.py</a>
+      <a href="#plotting">plotting &amp; downstream analysis</a>
+      <a href="#modules-todo">modules/ (pending)</a>
+    </div>
+
+    <div class="navgroup">
+      <div class="navgroup-label">more</div>
+      <a href="#hardware">Hardware notes</a>
+      <a href="#todo">Known TODOs &amp; release notes</a>
+      <a href="#citation">Citation</a>
+      <a href="#contact">Contact</a>
+    </div>
+
+    <div class="side-foot">
+      <div>Supplementary code for a manuscript in preparation.</div>
+      <div style="margin-top:8px;"><a href="docs/VesEvoL_Documentation.docx">DOCX documentation</a></div>
+<div style="margin-top:8px;"><a href="mailto:caritra@iitg.ac.in">caritra@iitg.ac.in</a></div>
+    </div>
+  </aside>
+
+  <main>
+
+    <section id="overview">
+      <p class="kicker">supplementary information · image analysis pipeline</p>
+      <h1>VesEvoL: Vesicle Evolution over Long time</h1>
+      <p class="lede">
+        <strong>VesEvoL</strong> is a batch image-analysis pipeline for following vesicle
+        evolution over extended time periods. It detects a large "mother" vesicle boundary,
+        detects and locally tracks smaller "daughter" vesicles, quantifies geometry and
+        contacts, and provides downstream plotting scripts for curvature, normalized area,
+        polar/karyograph, and segmentation analyses.
+      </p>
+
+      <div class="pill-row">
+        <span class="pill">3 core scripts</span>
+        <span class="pill">GPU-optional</span>
+        <span class="pill">CZI / TIFF input</span>
+        <span class="pill">StarDist · Cellpose · plotting</span>
+      </div>
+
+      <div class="term">
+        <div class="term-bar">
+          <span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span>
+          <span class="term-title">zsh — main.py</span>
+        </div>
+        <div class="term-body">
+<div><span class="p">$</span> python main.py</div>
+<div class="out">***** /data/gpmv_run3 | Current : 2/6 (16.7%) ****</div>
+<div class="out">&gt;&gt; vesicle_004.czi | Size: 1.84 GB &lt;&lt;</div>
+<div class="out">--- Step 1: Mother Detection ---</div>
+<div class="out">✅ GPU mode active for mother detection (1 CUDA device(s), kernel compile OK).</div>
+<div class="out">[OK] Mother metrics saved → results_v2/vesicle_004/mother/mother_metrics.csv</div>
+<div class="out">--- Step 2: Daughter Analysis ---</div>
+          <div class="out">--- Step 3: Downstream plotting / analysis ---</div>
+<div class="out">🚀 Running PARALLEL workflow topology processing on CPU via (2) tasks.</div>
+<div class="ok">✅ Done.</div>
+        </div>
+      </div>
+
+      <p style="font-size:13px;color:var(--text-faint);margin-top:4px;">
+        Representative console output — not a literal transcript.
+      </p>
+    </section>
+
+    <section id="status">
+      <h2><span class="num">§1</span> Repository status</h2>
+      <p>This release contains the three core driver scripts, the complete <code class="inline">modules/</code>
+      helper package, four downstream plotting/analysis areas, validation data, and release metadata.
+      One runtime dependency — <code class="inline">curvature_plot_metric.py</code> — is still absent
+      from the supplied archive and is flagged below.</p>
+
+      <table>
+        <thead>
+          <tr><th>Component</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code class="inline">main.py</code></td><td><span class="status"><span class="dot ok"></span>included</span></td></tr>
+          <tr><td><code class="inline">mother_detection.py</code></td><td><span class="status"><span class="dot ok"></span>included</span></td></tr>
+          <tr><td><code class="inline">detect_and_track.py</code></td><td><span class="status"><span class="dot ok"></span>included</span></td></tr>
+          <tr><td><code class="inline">modules/</code> (10 helper files)</td><td><span class="status"><span class="dot ok"></span>included</span></td></tr>
+          <tr><td><code class="inline">plot_curvature/</code></td><td><span class="status"><span class="dot ok"></span>included</span></td></tr>
+          <tr><td><code class="inline">plot_normalized_area/</code></td><td><span class="status"><span class="dot ok"></span>included</span></td></tr>
+          <tr><td><code class="inline">plot_polar/</code></td><td><span class="status"><span class="dot ok"></span>included</span></td></tr>
+          <tr><td><code class="inline">plot_segmentation/</code></td><td><span class="status"><span class="dot ok"></span>included</span></td></tr>
+          <tr><td><code class="inline">curvature_plot_metric.py</code></td><td><span class="status"><span class="dot pending"></span>missing runtime dependency</span></td></tr>
+          <tr><td>Example microscopy stacks</td><td><span class="status"><span class="dot pending"></span>not included</span></td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout">
+        <strong>Not runnable yet.</strong> <code class="inline">main.py</code> and
+        <code class="inline">mother_detection.py</code> import from <code class="inline">modules/</code>
+        and <code class="inline">curvature_plot_metric.py</code>, which aren't in this release yet.
+        See <a href="#modules-todo">modules/ (pending)</a> for exactly what each missing file needs
+        to provide.
+      </div>
+    </section>
+
+    <section id="install">
+      <h2><span class="num">§2</span> Installation</h2>
+      <p>The pipeline mixes CPU and optional GPU-accelerated libraries. A dedicated
+      conda/mamba environment is recommended — two of the GPU dependencies
+      (<code class="inline">tensorflow</code>, <code class="inline">cupy</code>) are far easier to get
+      working via conda-forge than pip on most systems.</p>
+
+<pre><code><span class="cmt"># create and activate an environment</span>
+<span class="kw">conda</span> create -n vesicle-pipeline python=3.10
+<span class="kw">conda</span> activate vesicle-pipeline
+
+<span class="cmt"># install dependencies</span>
+<span class="kw">pip</span> install -r requirements.txt</code></pre>
+
+      <p>Core dependencies: <code class="inline">numpy</code>, <code class="inline">pandas</code>,
+      <code class="inline">scipy</code>, <code class="inline">scikit-image</code>,
+      <code class="inline">opencv-python</code>, <code class="inline">easygui</code>,
+      <code class="inline">matplotlib</code>, <code class="inline">alive-progress</code>,
+      <code class="inline">trackpy</code>.</p>
+
+      <p>Deep-learning segmentation backends: <code class="inline">tensorflow</code> (StarDist,
+      default backend), <code class="inline">torch</code> + <code class="inline">cellpose</code>
+      (optional alternate backend), <code class="inline">stardist</code>,
+      <code class="inline">csbdeep</code>.</p>
+
+      <p>Optional GPU acceleration for mother detection: install a CuPy build matching your
+      local CUDA toolkit, e.g. <code class="inline">pip install cupy-cuda12x</code>. Not required —
+      the pipeline detects CuPy/CUDA availability at import time and falls back to a
+      scikit-image CPU path automatically, printing which mode it picked.</p>
+    </section>
+
+    <section id="usage">
+      <h2><span class="num">§3</span> Usage</h2>
+      <p>Run the orchestration script directly:</p>
+<pre><code><span class="kw">python</span> main.py</code></pre>
+      <p>It's interactive — <code class="inline">easygui</code> dialogs and, for mother-detection
+      parameter tuning, a Matplotlib slider GUI — and will walk you through:</p>
+      <ol>
+        <li>Choosing the folder containing the microscopy stacks to process.</li>
+        <li>Optionally reusing a previously-defined ROI size.</li>
+        <li>Choosing <strong>Parallel</strong> or <strong>Sequential</strong> execution mode for the whole run.</li>
+        <li>On the first file, tuning mother-detection parameters (Gaussian sigma, wavelet
+        scale, threshold) live with the slider GUI, then selecting the frame range and
+        spatial ROI.</li>
+      </ol>
+
+      <h3>Per-file output</h3>
+      <p>Each input file <code class="inline">foo.czi</code> produces <code class="inline">results_v2/foo/</code>:</p>
+<pre><code>results_v2/foo/
+├── mother.csv                    <span class="cmt"># per-frame mother-boundary geometry (final)</span>
+├── daughter.csv                  <span class="cmt"># per-frame daughter geometry + contacts (final)</span>
+├── detections.npz                <span class="cmt"># only if SAVE_RAW_NPZ = True</span>
+├── mother/
+│   ├── mother_metrics.csv
+│   ├── raw/, overlay/            <span class="cmt"># per-frame diagnostic images</span>
+│   └── theta_grid_radians.npy, kappa_normalized_vs_theta.npy
+└── (segmentation/tracking working folders, overlay PNGs, ...)</code></pre>
+
+      <h3>Combined summary</h3>
+      <p>After every file in the folder is processed, you're prompted for a name for the
+      combined-results folder:</p>
+<pre><code>results_v2/&lt;combined_results&gt;/
+├── mother_all.csv            <span class="cmt"># mother.csv for every file, + a `video` column</span>
+└── inner_daughter_all.csv    <span class="cmt"># daughter.csv for every file, + a `video` column</span></code></pre>
+      <p>This step re-reads every per-file CSV back from disk rather than holding all of it in
+      memory during the run, since the per-file CSVs are small (no raw images/masks).</p>
+    </section>
+
+    <section id="pipeline">
+      <h2><span class="num">§4</span> Stage-by-stage flow</h2>
+      <p>Execution mode (Parallel vs. Sequential) is chosen once per run and affects every
+      stage below. <strong>Parallel</strong> spreads frames across CPU worker processes —
+      faster, but no live progress bar, and GPU segmentation is disabled (a live CUDA/TensorFlow
+      context can't be shared across worker processes). <strong>Sequential</strong> runs one
+      frame at a time with a live progress bar, and is the only mode that can use a GPU
+      segmentation backend.</p>
+
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-num">1</div>
+          <div class="flow-content">
+            <h3>Load &amp; crop</h3>
+            <p>Read the stack, split into per-frame arrays, crop to a user-chosen frame range
+            and spatial ROI.</p>
+            <div class="src">main.py → load_stack_efficient(), select_frame_range(), select_roi_per_frame_ranges()</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">2</div>
+          <div class="flow-content">
+            <h3>Mother detection</h3>
+            <p>Interactively tune Frangi/wavelet/threshold parameters once, then for every frame:
+            gradient/wavelet magnitude → multi-scale Frangi vesselness → skeletonize → contour →
+            shape + temporal scoring. Also computes a per-frame polar curvature profile.</p>
+            <div class="src">mother_detection.py → MotherTuner.tune(), detect_mother_stack_parallelized()</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">3</div>
+          <div class="flow-content">
+            <h3>Deconvolution <span style="color:var(--text-faint);font-weight:400;">(optional)</span></h3>
+            <p>Richardson–Lucy deconvolution of the frames, only if <code class="inline">SETTING_DECONVULATION = True</code>.</p>
+            <div class="src">modules/deconvulation.py → gaussian_psf(), deconvolve_frames()</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">4</div>
+          <div class="flow-content">
+            <h3>Daughter detection &amp; local tracking</h3>
+            <p>Per-frame StarDist/Cellpose instance segmentation restricted to candidates near or
+            inside the mother boundary, filtered by size and circularity. Detections are linked
+            across frames with trackpy, then classified by contact: mother contact (<code class="inline">MLS</code>)
+            or daughter–daughter contact (<code class="inline">MSS</code>) via nearest-point KD-tree queries.</p>
+            <div class="src">detect_and_track.py → process_daughters_parallel(), tracking()</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">5</div>
+          <div class="flow-content">
+            <h3>Compile &amp; write per-file results</h3>
+            <p>Mother and daughter detections are compiled into the final <code class="inline">mother.csv</code> /
+            <code class="inline">daughter.csv</code> for the file, then every large per-file object is
+            explicitly freed before moving to the next file — so peak memory stays bounded by a
+            single file regardless of batch size.</p>
+            <div class="src">modules/results.py → compile_experiment_data()</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">6</div>
+          <div class="flow-content">
+            <h3>Combined summary</h3>
+            <p>Once every file is processed, all per-file <code class="inline">mother.csv</code> /
+            <code class="inline">daughter.csv</code> are re-read from disk and concatenated into a
+            combined dataset, tagged with a <code class="inline">video</code> column.</p>
+            <div class="src">main.py (end of run)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="config">
+      <h2><span class="num">§5</span> Configuration flags</h2>
+      <p>Set at the top of <code class="inline">main.py</code>.</p>
+      <table>
+        <thead><tr><th>Flag</th><th>Default</th><th>Effect</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code class="inline">SETTING_DECONVULATION</code></td>
+            <td><code class="inline">False</code></td>
+            <td>Run Richardson–Lucy deconvolution on frames before daughter detection.</td>
+          </tr>
+          <tr>
+            <td><code class="inline">SAVE_RAW_NPZ</code></td>
+            <td><code class="inline">False</code></td>
+            <td>Also cache the raw per-frame image/mask stack to <code class="inline">detections.npz</code>.
+            This is the single largest artifact per file in memory and on disk — leave it off
+            unless you specifically need it for offline debugging.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="outputs">
+      <h2><span class="num">§6</span> Outputs &amp; column reference</h2>
+
+      <h3><code class="inline">mother.csv</code> / <code class="inline">mother_metrics.csv</code></h3>
+      <table>
+        <tbody>
+          <tr><td><code>frame</code></td><td>Frame index</td></tr>
+          <tr><td><code>area_um2</code>, <code>area_px</code></td><td>Boundary area, in µm² and pixels</td></tr>
+          <tr><td><code>perimeter_um</code>, <code>perimeter_px</code></td><td>Boundary perimeter, in µm and pixels</td></tr>
+          <tr><td><code>radius_um</code></td><td>Equivalent radius, <code>√(area/π)</code>, in µm</td></tr>
+          <tr><td><code>centroid_x</code>, <code>centroid_y</code></td><td>Boundary centroid, pixel coordinates</td></tr>
+          <tr><td><code>score</code></td><td>Detection confidence — combined shape, area, and temporal-consistency score</td></tr>
+          <tr><td><code>circularity</code></td><td>Isoperimetric quotient <code>4π·A / P²</code>, capped at 1.0</td></tr>
+        </tbody>
+      </table>
+
+      <h3><code class="inline">daughter.csv</code> / <code class="inline">daughter_tracking_local.csv</code></h3>
+      <table>
+        <tbody>
+          <tr><td><code>id</code></td><td>Track ID (from trackpy linking)</td></tr>
+          <tr><td><code>frame</code></td><td>Frame index</td></tr>
+          <tr><td><code>area</code></td><td>Daughter area, µm²</td></tr>
+          <tr><td><code>centroid_x</code>, <code>centroid_y</code></td><td>Daughter centroid</td></tr>
+          <tr><td><code>daughter_contour</code></td><td>Full boundary contour, as a list of points</td></tr>
+          <tr><td><code>contact_class</code></td><td><code>MLS</code> touching the mother · <code>MSS</code> touching another daughter · <code>FREE</code> touching neither</td></tr>
+          <tr><td><code>contact_point_x</code>, <code>contact_point_y</code></td><td>Midpoint of the contact window (NaN for <code>FREE</code>)</td></tr>
+          <tr><td><code>interacting_with_id</code></td><td>Track ID of the other daughter, for <code>MSS</code> rows only</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <hr class="rule">
+
+    <section id="ref-main">
+      <h2><span class="num">§7</span> Function reference</h2>
+      <p>Detailed, per-function documentation for all three driver modules. Functions tagged
+      <span class="tag" style="position:relative;top:-1px;">worker</span> run inside a
+      <code class="inline">multiprocessing.Pool</code> and aren't normally called directly.</p>
+
+      <h3 style="margin-top:36px;">main.py — orchestration</h3>
+      <p>Not a library — run directly as <code class="inline">python main.py</code>. Per input file, it:</p>
+      <ol>
+        <li>Loads the stack and splits it into a list of 2-D frames.</li>
+        <li>Crops to a user-selected frame range and spatial ROI.</li>
+        <li>Interactively tunes mother-detection parameters once, then runs detection over every frame and saves <code class="inline">mother_metrics.csv</code>.</li>
+        <li>Optionally deconvolves frames.</li>
+        <li>Runs daughter segmentation + local tracking.</li>
+        <li>Optionally caches raw frames/masks to disk.</li>
+        <li>Compiles the final per-file <code class="inline">mother.csv</code> / <code class="inline">daughter.csv</code>.</li>
+        <li>Explicitly deletes every large per-file object and calls <code class="inline">gc.collect()</code> before the next file, bounding peak memory to a single file regardless of batch size.</li>
+      </ol>
+      <p>After the loop, it re-reads every per-file CSV from disk and concatenates them into a combined summary directory (see <a href="#usage">Usage</a>).</p>
+    </section>
+
+    <section id="ref-mother">
+      <h3 style="margin-top:8px;">mother_detection.py — mother boundary detection &amp; tracking</h3>
+      <p>Detects the large "mother" boundary in each frame and scores it against the previous
+      frame for temporal consistency.</p>
+
+      <h4 class="fn">Environment setup <span class="tag">import-time</span></h4>
+      <ul>
+        <li><code>_autodetect_cuda_path()</code> — if <code class="inline">CUDA_PATH</code> isn't already set, scans the default NVIDIA install location and sets it for the current process only (doesn't touch persistent env vars).</li>
+        <li><code>_register_pip_nvidia_dll_dirs()</code> — registers DLL/<code class="inline">.so</code> directories from any pip-installed <code class="inline">nvidia-*-cu12</code> packages so CuPy/TensorFlow can find them.</li>
+        <li>Module-level <code class="inline">HAS_GPU</code> probe — compiles a real NVRTC kernel via <code class="inline">gaussian_filter</code>, not just a device-visibility check, so it also catches a broken/missing <code class="inline">CUDA_PATH</code>.</li>
+      </ul>
+
+      <h4 class="fn">normalize(img)</h4>
+      <p>Linear rescale of image intensities to <code class="inline">[0, 1]</code>.</p>
+
+      <h4 class="fn">contour_to_mask(contour, shape)</h4>
+      <p>Renders a filled binary mask from a contour array.</p>
+
+      <h4 class="fn">compute_circularity(contour)</h4>
+      <p>Isoperimetric quotient <code class="inline">4π·A / P²</code>, capped at 1.0.</p>
+
+      <h4 class="fn">fit_ellipse_score(contour)</h4>
+      <p>Fits an ellipse via <code class="inline">cv2.fitEllipse</code> and returns
+      <code class="inline">(aspect_ratio, match_score)</code>, where <code class="inline">match_score</code>
+      is derived from the mean nearest-point distance between the contour and the fitted
+      ellipse's boundary.</p>
+
+      <h4 class="fn">project_curvature_to_theta(kappa, kappa_clean, x_s, y_s, num_theta_bins=360)</h4>
+      <p>Projects a curvature signal defined along arc length onto a uniform
+      <code class="inline">[-π, π]</code> angular grid centered on the contour's centroid,
+      handling the periodic wrap seam. Returns <code class="inline">(theta_grid, kappa_norm_grid)</code>.</p>
+
+      <h4 class="fn">cupy_frangi(image_gpu, params)</h4>
+      <p>GPU multi-scale Frangi vesselness filter implemented directly in CuPy — Hessian
+      eigenvalues via a closed-form 2×2 solution, vesselness combining the <code class="inline">Rb</code>
+      blob-ness and <code class="inline">S</code> structureness terms. Raises if
+      <code class="inline">HAS_GPU</code> is <code class="inline">False</code>.</p>
+
+      <h4 class="fn">score_contour(contour, prev_state, micron_per_pixel, params)</h4>
+      <p>Combines three sub-scores into one detection-confidence value:</p>
+      <ul>
+        <li><strong>Shape</strong> — circularity + ellipse match, penalized if aspect ratio exceeds <code class="inline">ellipse_aspect_ratio_max</code>.</li>
+        <li><strong>Area</strong> — soft-clipped around a target size window (defined by <code class="inline">min_area_um2</code> and thresholds at 500/5000 µm²).</li>
+        <li><strong>Temporal</strong> — when a previous frame's contour is available, penalizes large centroid jumps or radius changes frame-to-frame.</li>
+      </ul>
+
+      <h4 class="fn">analyze_mother_frame_gpu_fast(img, micron_per_pixel, params, prev_state=None)</h4>
+      <p>GPU detection path for one frame: Gaussian blur → gradient/wavelet magnitude →
+      <code class="inline">cupy_frangi</code> → threshold → skeletonize → contour extraction →
+      score every candidate contour and keep the best. Returns
+      <code class="inline">(mother_contour, frangi_u8, skel_u8, intermediates)</code>.</p>
+
+      <h4 class="fn">analyze_mother_frame_cpu(img, micron_per_pixel, p, prev_state=None)</h4>
+      <p>Same pipeline on CPU: uses <code class="inline">modules.image_buildFFT</code> /
+      <code class="inline">modules.image_wavelet2d_gauss</code> for the gradient step if
+      available, else a Sobel-based gradient magnitude, and
+      <code class="inline">skimage.filters.frangi</code> in place of the CuPy kernel.</p>
+
+      <h4 class="fn">ManualCorrector <span class="tag">interactive</span></h4>
+      <p>Matplotlib <code class="inline">PolygonSelector</code> GUI for manually drawing a
+      correction contour on a single frame — click vertices, press Enter to commit.</p>
+
+      <h4 class="fn">MotherTuner <span class="tag">interactive</span></h4>
+      <p>Matplotlib slider GUI (<code class="inline">frame</code>, <code class="inline">gauss_sigma</code>,
+      <code class="inline">wavelet_scale</code>, <code class="inline">threshold_value</code>) for
+      live-previewing detection results before committing to a parameter set for the whole
+      stack. <code class="inline">MotherTuner.tune(frames, px)</code> opens the GUI and returns the
+      chosen parameter dict once closed.</p>
+
+      <h4 class="fn">_process_chunk(args, bar=None) <span class="tag">worker</span></h4>
+      <p>Runs <code class="inline">analyze_mother_frame_gpu_fast</code> sequentially across a
+      chunk of frames, carrying <code class="inline">prev_state</code> forward for temporal
+      scoring, and computes each frame's polar curvature profile via
+      <code class="inline">curvature_plot_metric.compute_curvature</code> +
+      <code class="inline">project_curvature_to_theta</code>.</p>
+
+      <h4 class="fn">_save_curvature_worker(args) <span class="tag">worker</span></h4>
+      <p>Per-contour curvature → theta-grid projection, used by <code class="inline">save_curvature_parallel</code>.</p>
+
+      <h4 class="fn">save_curvature_parallel(results, output_folder, n_workers=2)</h4>
+      <p>Maps <code class="inline">_save_curvature_worker</code> over every frame's contour in a small worker pool.</p>
+
+      <h4 class="fn">save_mother_results(frames, results, micron_per_pixel, ...)</h4>
+      <p>Writes raw + boundary-overlay PNGs (threaded, not multiprocessed, since it's I/O-bound)
+      and, if <code class="inline">save_curvature=True</code>, stacks every frame's
+      <code class="inline">(theta_grid, kappa_normalized_grid)</code> into
+      <code class="inline">theta_grid_radians.npy</code> / <code class="inline">kappa_normalized_vs_theta.npy</code>.</p>
+
+      <h4 class="fn">detect_mother_stack_parallelized(frames, micron_per_pixel, params=None, ...)</h4>
+      <p>The main entry point called from <code class="inline">main.py</code>. Splits
+      <code class="inline">frames</code> into <code class="inline">chunk_size</code>-frame chunks
+      and either maps them across a <code class="inline">multiprocessing.Pool</code>
+      (<code class="inline">parallel=True</code> — faster, no live progress bar) or processes
+      them sequentially in-process with an <code class="inline">alive_bar</code>
+      (<code class="inline">parallel=False</code>). Returns a dict of per-frame lists
+      (<code class="inline">contour</code>, <code class="inline">area_um2</code>,
+      <code class="inline">radius_um</code>, <code class="inline">score</code>,
+      <code class="inline">theta_grid</code>, <code class="inline">kappa_normalized_grid</code>, ...).</p>
+    </section>
+
+    <section id="ref-daughter">
+      <h3 style="margin-top:8px;">detect_and_track.py — daughter detection &amp; tracking</h3>
+      <p>Detects daughter vesicles near the mother boundary, links them across frames, and
+      classifies their contacts.</p>
+
+      <h4 class="fn">save_local_tracking_csv(final_results, output_folder)</h4>
+      <p>Flattens the nested per-frame stats list into <code class="inline">daughter_tracking_local.csv</code>.</p>
+
+      <h4 class="fn">kdist(m_pts, d_cnt)</h4>
+      <p>Nearest point on <code class="inline">m_pts</code> to any point of
+      <code class="inline">d_cnt</code>, via <code class="inline">scipy.spatial.cKDTree</code>.
+      Returns <code class="inline">(min_distance, m_index, d_index)</code>.</p>
+
+      <h4 class="fn">translate_mask(mask, tx, ty)</h4>
+      <p>Affine-translates a label mask using nearest-neighbor interpolation, to preserve
+      integer labels.</p>
+
+      <h4 class="fn">compute_circularity(mask)</h4>
+      <p>Same isoperimetric-quotient metric as in <code class="inline">mother_detection.py</code>,
+      computed from a binary mask rather than a contour array.</p>
+
+      <h4 class="fn">curvature_radius(contour, idx, k=5)</h4>
+      <p>Local radius of curvature at a contour point, via the Menger curvature of the
+      triangle formed with the points <code class="inline">k</code> steps before/after it.</p>
+
+      <h4 class="fn">get_contour_points(mask)</h4>
+      <p>Outer contour of a binary mask, as an <code class="inline">(N, 2)</code> array.</p>
+
+      <h4 class="fn">segment_with_stardist(img_input)</h4>
+      <p><code class="inline">StarDist2D.from_pretrained("2D_versatile_fluo")</code>, with
+      <code class="inline">csbdeep_normalize</code> and
+      <code class="inline">predict_instances(prob_thresh=0.5, nms_thresh=0.4)</code>.</p>
+
+      <h4 class="fn">segment_with_cellpose(img_input, use_gpu=True)</h4>
+      <p><code class="inline">CellposeModel(pretrained_model="cpsam")</code>, with
+      <code class="inline">flow_threshold=0.4</code>, <code class="inline">cellprob_threshold=0.0</code>.</p>
+
+      <p style="font-size:14px;">Both backends raise <code class="inline">ImportError</code> with the
+      original import error if the optional dependency isn't installed
+      (<code class="inline">CELLPOSE_AVAILABLE</code> / <code class="inline">STARDIST_AVAILABLE</code>).</p>
+
+      <h4 class="fn">save_visuals_robust(output_dir, fname, raw, masks, mother_cnt, mother_radius, daughters_data)</h4>
+      <p>Writes three diagnostic PNGs per frame: the raw image, a clean color-coded overlay of
+      daughter masks, and an overlay with contact-status colors and track-id labels.</p>
+
+      <h4 class="fn">save_binary_daughter_sample(base_dir, raw_img, daughter_mask, frame_idx, daughter_id)</h4>
+      <p>Saves a raw-image / binary-mask pair per detected daughter, for building segmentation
+      training sets (<code class="inline">save_training=True</code>).</p>
+
+      <h4 class="fn">process_frame_worker(args) <span class="tag">worker</span></h4>
+      <p>For one frame: builds a percentile-normalized <code class="inline">[0, 1]</code> input
+      image, segments it with the configured backend, keeps only regions within
+      <code class="inline">mother_radius + RADIUS_BUFFER_PX</code> of the mother centroid and
+      smaller than half the mother's area, filters by circularity ≥ 0.6, and returns a
+      <code class="inline">frame_cache</code> entry plus the frame's detections.</p>
+
+      <h4 class="fn">process_daughters_parallel(frames, mother_data, micron_per_pixel, ...)</h4>
+      <p>The main entry point called from <code class="inline">main.py</code>. Chooses one of
+      three execution paths based on <code class="inline">(parallel, use_gpu)</code>:</p>
+      <ul>
+        <li><code class="inline">parallel=True</code> → CPU <code class="inline">multiprocessing.Pool</code> over <code class="inline">process_frame_worker</code> (fastest, no progress bar). Forces <code class="inline">use_gpu=False</code> if it was requested alongside <code class="inline">parallel=True</code>, since a CUDA/TF context can't be shared across worker processes.</li>
+        <li><code class="inline">parallel=False, use_gpu=False</code> → sequential CPU loop with an <code class="inline">alive_bar</code>.</li>
+        <li><code class="inline">parallel=False, use_gpu=True</code> → sequential loop calling the segmentation backend directly on GPU.</li>
+      </ul>
+      <p>If <code class="inline">iflocalTracking=True</code> and any detections were found, also
+      runs <code class="inline">tracking(...)</code> and writes <code class="inline">daughter_tracking_local.csv</code>.</p>
+
+      <h4 class="fn">tracking(frame_cache, output_folder, all_detections, ...)</h4>
+      <p>Links detections and classifies contacts:</p>
+      <ol>
+        <li>Links detections across frames with <code class="inline">trackpy.link_df</code> (<code class="inline">search_range=10, memory=5</code>) and drops short tracks (<code class="inline">filter_stubs</code>, <code class="inline">threshold=5</code>).</li>
+        <li>Per frame, translates the mother contour into the frame's local coordinate system and finds each daughter's nearest point on it via <code class="inline">kdist</code>; a distance <code class="inline">&lt; CONTACT_PX</code> (10 px) marks a mother contact (<code class="inline">MLS</code>) and records the local radius of curvature plus a small contour window around the contact point.</li>
+        <li>For every daughter pair within a frame, runs the same nearest-point check between their contours (per-pair KD-trees) to mark daughter–daughter contacts (<code class="inline">MSS</code>).</li>
+        <li>Emits one row per contact event (<code class="inline">MLS</code>/<code class="inline">MSS</code>) plus a <code class="inline">FREE</code> row for daughters touching neither — each carrying the daughter's contour, centroid, area, and (for contacts) the contact point, and for <code class="inline">MSS</code> rows, the id of the other daughter involved.</li>
+      </ol>
+    </section>
+
+    <section id="modules-todo">
+      <h2><span class="num">§8</span> modules/ — pending</h2>
+      <p>Imported by <code class="inline">main.py</code> and <code class="inline">mother_detection.py</code>
+      but not yet included in this repository. Based on the call sites in the current code,
+      here's what each file is expected to provide:</p>
+
+      <table>
+        <thead><tr><th>Module</th><th>Used for</th><th>Called as</th></tr></thead>
+        <tbody>
+          <tr><td><code>read_czi_tiff.py</code></td><td>Listing input files, reading voxel size, loading stacks</td><td><code>read_directory()</code>, <code>read_voxel_size(file)</code>, <code>load_stack_efficient(file)</code></td></tr>
+          <tr><td><code>global_rect_roi.py</code></td><td>Interactive/reused rectangular ROI cropping</td><td><code>select_roi_per_frame_ranges(frames, roi_size)</code></td></tr>
+          <tr><td><code>slicer.py</code></td><td>Interactive frame-range selection</td><td><code>select_frame_range(frames)</code></td></tr>
+          <tr><td><code>deconvulation.py</code></td><td>Richardson–Lucy deconvolution</td><td><code>gaussian_psf(...)</code>, <code>deconvolve_frames(...)</code></td></tr>
+          <tr><td><code>results.py</code></td><td>Combining mother + daughter detections into final tables</td><td><code>compile_experiment_data(m_data, daughter_results, px)</code></td></tr>
+          <tr><td><code>savenpzraw.py</code></td><td>Optional raw frame/mask caching</td><td><code>save_npz_raw(out_dir, frame_cache, detections, px)</code></td></tr>
+          <tr><td><code>pre_process.py</code></td><td>Phase-contrast preprocessing</td><td><code>preprocess_phase_contrast(...)</code></td></tr>
+          <tr><td><code>image_buildFFT.py</code></td><td>FFT-based gradient step (CPU fallback, optional)</td><td><code>BuildFFT.img2D(img)</code></td></tr>
+          <tr><td><code>image_wavelet2d_gauss.py</code></td><td>Wavelet gradient step (CPU fallback, optional)</td><td><code>Wavelet2D_gauss.firstder(...)</code></td></tr>
+        </tbody>
+      </table>
+      <p><code class="inline">curvature_plot_metric.py</code> (imported at the repo root, not
+      inside <code class="inline">modules/</code>) is also required — it supplies
+      <code class="inline">compute_curvature(contour, remove_outliers, interpolate, num_points)</code>.</p>
+    </section>
+
+
+    <section id="plotting">
+      <h2><span class="num">§9</span> Plotting &amp; downstream analysis</h2>
+      <p>The supplied archive includes four downstream analysis areas. These scripts operate
+      on processed CSV/results rather than raw microscopy acquisition files.</p>
+
+      <h3>plot_curvature/</h3>
+      <ul>
+        <li><code>plot_curvature_population.py</code> — population-level curvature matrices/figures.</li>
+        <li><code>heatmap.py</code> — 2-D heatmaps of curvature-related metrics.</li>
+        <li><code>plot_histogram.py</code> — fitted histogram analysis using dual-Gaussian and lognormal models.</li>
+        <li><code>divergence_MSS_MLS_Binned.py</code> — binned divergence analysis comparing MSS and MLS metrics.</li>
+        <li><code>utils.py</code> — dataset-tree parsing, trajectory loading, and 2-minute vesicle binning.</li>
+      </ul>
+
+      <h3>plot_normalized_area/</h3>
+      <ul>
+        <li><code>plot_binned_area.py</code> — automatic collection/processing and generation of binned normalized-area figures.</li>
+        <li><code>plot_single_exp.py</code> — self-normalization, single-exponential fitting, fitted figures, parameter plots, and vesicle-level scatter plots.</li>
+        <li><code>utils.py</code> — CSV loading, vesicle normalization, time binning, and condition aggregation.</li>
+      </ul>
+
+      <h3>plot_polar/</h3>
+      <ul>
+        <li><code>PolarPlot.py</code> — computes contact angles and pairwise geometry and generates polar plots, karyographs, combined karyographs, and contact-curvature figures.</li>
+        <li><code>Figure-preparation.py</code> — selects experiment/result folders and builds composite figures for figure preparation.</li>
+        <li><code>mystyle.py</code> / <code>mystyle.mplstyle</code> — plotting style helpers.</li>
+      </ul>
+
+      <h3>plot_segmentation/</h3>
+      <ul>
+        <li><code>pipeline_validation_from_csv.py</code> — reads the supplied <code>pipeline_validation_data.csv</code> and compares segmentation-method metrics.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Path configuration.</strong> Several plotting scripts contain a local
+        <code class="inline">DATA_ROOT</code> or other path configuration pointing to a
+        paper-data directory. Update those paths for the machine on which the analysis is run.
+      </div>
+    </section>
+
+    <section id="hardware">
+      <h2><span class="num">§10</span> Hardware notes</h2>
+      <ul>
+        <li><strong>Mother detection</strong> — the GPU path requires a working CUDA toolkit and a
+        <code class="inline">cupy</code> build matching your CUDA version. The script auto-detects
+        <code class="inline">CUDA_PATH</code> on Windows and probes that a CuPy kernel actually
+        compiles (not just that a device is visible) before enabling GPU mode, printing a clear
+        reason if it falls back to CPU.</li>
+        <li><strong>Daughter segmentation</strong> — StarDist (TensorFlow) and/or Cellpose (PyTorch),
+        whichever is installed and set as <code class="inline">SEGMENTATION_BACKEND</code> in
+        <code class="inline">detect_and_track.py</code> (default: <code class="inline">"stardist"</code>).</li>
+        <li><strong>Multiprocessing</strong> — Parallel mode is capped to a small worker count by
+        default to avoid OpenBLAS/BLAS thread-oversubscription crashes on shared workstations;
+        adjust <code class="inline">n_workers</code> in the relevant function calls on a dedicated
+        machine with more cores.</li>
+      </ul>
+    </section>
+
+    <section id="todo">
+      <h2><span class="num">§11</span> Known TODOs &amp; release notes</h2>
+      <ul>
+        <li>Add the missing <code class="inline">curvature_plot_metric.py</code> runtime dependency and confirm the complete pipeline runs end-to-end from a clean environment.</li>
+        <li><code class="inline">SEGMENTATION_BACKEND</code> is currently hardcoded to <code class="inline">"stardist"</code> inside <code class="inline">process_daughters_parallel</code>; expose it as a parameter if both backends are to be supported in the release.</li>
+        <li>Replace the remaining repository/journal/DOI placeholders in <code class="inline">CITATION.cff</code> when identifiers are minted.</li>
+        <li>Several plotting scripts use local Windows data paths; update <code class="inline">DATA_ROOT</code> and related paths before execution.</li>
+      </ul>
+    </section>
+
+    <section id="citation">
+      <h2><span class="num">§12</span> Citation</h2>
+      <p>If you use this code, please cite the associated paper:</p>
+<pre><code>Pandey, T.; Kudawlaa, R.; Varshan B S, J.; Devarakonda, C.;
+Chatterjee, A.; Bhatia, T. <span class="str">"Evolution of Vesicle Shape Parameters Based on A Deep-Learning Based Image Analysis Framework Over Extended Time Periods."</span>
+[Journal], 2026. DOI: [pending]</code></pre>
+      <p>The repository contains a machine-readable <code class="inline">CITATION.cff</code>.
+      Add the journal, paper DOI, repository URL, and Zenodo DOI when those identifiers are available.</p>
+    </section>
+
+    <section id="contact">
+      <h2><span class="num">§13</span> Contact</h2>
+      <ul>
+        <li><a href="mailto:ms22113@iisermohali.ac.in">ms22113@iisermohali.ac.in</a></li>
+        <li><a href="mailto:itstanmaypandey@gmail.com">itstanmaypandey@gmail.com</a></li>
+        <li><a href="mailto:caritra@iitg.ac.in">caritra@iitg.ac.in</a></li>
+      </ul>
+    </section>
+
+  </main>
+</div>
+
+<footer class="page">
+  <div>~/VesEvoL — documentation for GitHub / Zenodo supplementary release.</div>
+</footer>
+
+<script>
+// mobile nav toggle
+const side = document.getElementById('side');
+const menuBtn = document.getElementById('menuBtn');
+menuBtn.addEventListener('click', () => side.classList.toggle('open'));
+document.querySelectorAll('.navgroup a').forEach(a=>{
+  a.addEventListener('click', ()=> side.classList.remove('open'));
+});
+
+// scrollspy
+const links = Array.from(document.querySelectorAll('.navgroup a'));
+const targets = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+function onScroll(){
+  let current = targets[0];
+  const y = window.scrollY + 90;
+  for(const t of targets){
+    if(t.offsetTop <= y) current = t;
+  }
+  links.forEach(a=>{
+    a.classList.toggle('active', a.getAttribute('href') === '#' + current.id);
+  });
+}
+document.addEventListener('scroll', onScroll, {passive:true});
+onScroll();
+</script>
+</body>
+</html>

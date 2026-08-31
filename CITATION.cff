@@ -1,0 +1,49 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the associated paper."
+title: "VesEvoL — Vesicle Evolution over Long time"
+abstract: >
+  Image-analysis framework for detecting a large mother vesicle boundary in
+  time-lapse microscopy stacks, detecting and locally tracking smaller daughter
+  vesicles, quantifying vesicle geometry and contacts over extended time
+  periods, and supporting downstream analysis and figure generation.
+authors:
+  - family-names: "Pandey"
+    given-names: "Tanmay"
+    email: "itstanmaypandey@gmail.com"
+    affiliation: "Indian Institute of Science Education and Research, Mohali"
+  - family-names: "Kudawlaa"
+    given-names: "Rajni"
+  - family-names: "Varshan B S"
+    given-names: "Jeyanth"
+  - family-names: "Devarakonda"
+    given-names: "Chetana"
+  - family-names: "Chatterjee"
+    given-names: "Aritra"
+    email: "caritra@iitg.ac.in"
+    affiliation: "Indian Institute of Technology, Guwahati"
+  - family-names: "Bhatia"
+    given-names: "Tripta"
+version: 0.1.0
+date-released: "2026-09-01"
+license: MIT
+repository-code: "[ADD GITHUB URL]"
+doi: "[ADD ZENODO DOI ONCE MINTED]"
+preferred-citation:
+  type: article
+  title: "Evolution of Vesicle Shape Parameters Based on A Deep-Learning Based Image Analysis Framework Over Extended Time Periods"
+  authors:
+    - family-names: "Pandey"
+      given-names: "Tanmay"
+    - family-names: "Kudawlaa"
+      given-names: "Rajni"
+    - family-names: "Varshan B S"
+      given-names: "Jeyanth"
+    - family-names: "Devarakonda"
+      given-names: "Chetana"
+    - family-names: "Chatterjee"
+      given-names: "Aritra"
+    - family-names: "Bhatia"
+      given-names: "Tripta"
+  year: 2026
+  journal: "[ADD JOURNAL]"
+  doi: "[ADD PAPER DOI]"

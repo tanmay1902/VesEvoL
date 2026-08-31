@@ -1,0 +1,261 @@
+###############################################################################
+# Publication Style Sheet
+# Membrane Biophysics / Soft Matter
+# Compatible with:
+#   - Soft Matter
+#   - Biophysical Journal
+#   - Nature Communications
+#   - PNAS
+#   - Physical Review
+###############################################################################
+
+###############################################################################
+# Figure
+###############################################################################
+
+figure.figsize              : 3.35, 2.6
+figure.dpi                  : 150
+figure.facecolor            : white
+figure.edgecolor            : white
+figure.frameon              : False
+figure.autolayout           : False
+figure.constrained_layout.use : False
+
+###############################################################################
+# Savefig
+###############################################################################
+
+savefig.dpi                 : 600
+savefig.format              : pdf
+savefig.transparent         : False
+savefig.facecolor           : white
+savefig.edgecolor           : white
+savefig.bbox                : tight
+savefig.pad_inches          : 0.02
+
+###############################################################################
+# Fonts
+###############################################################################
+
+font.family                 : sans-serif
+font.sans-serif             : Arial, Helvetica, DejaVu Sans, Liberation Sans
+
+font.size                   : 9
+
+axes.titlesize              : 12
+axes.labelsize              : 11
+
+xtick.labelsize             : 9
+ytick.labelsize             : 9
+
+legend.fontsize             : 8
+
+mathtext.fontset            : stix
+mathtext.default            : regular
+
+pdf.fonttype                : 42
+ps.fonttype                 : 42
+svg.fonttype                : none
+
+###############################################################################
+# Axes
+###############################################################################
+
+axes.facecolor              : white
+axes.edgecolor              : black
+axes.linewidth              : 1.2
+
+axes.spines.left            : True
+axes.spines.bottom          : True
+axes.spines.top             : False
+axes.spines.right           : False
+
+axes.axisbelow              : True
+
+axes.titlepad               : 8
+axes.labelpad               : 6
+
+axes.grid                   : False
+
+###############################################################################
+# Color Cycle
+###############################################################################
+
+axes.prop_cycle : cycler('color', [
+    '#1f77b4',
+    '#ff7f0e',
+    '#2ca02c',
+    '#d62728',
+    '#9467bd',
+    '#8c564b',
+    '#e377c2',
+    '#7f7f7f',
+    '#bcbd22',
+    '#17becf'])
+
+###############################################################################
+# Lines
+###############################################################################
+
+lines.linewidth             : 2.0
+lines.linestyle             : -
+lines.marker                : None
+lines.markersize            : 5
+lines.markeredgewidth       : 0.8
+lines.solid_capstyle        : round
+lines.solid_joinstyle       : round
+lines.dash_capstyle         : round
+lines.dash_joinstyle        : round
+lines.antialiased           : True
+
+###############################################################################
+# Patch Objects
+###############################################################################
+
+patch.linewidth             : 0.8
+patch.facecolor             : C0
+patch.edgecolor             : black
+patch.antialiased           : True
+
+###############################################################################
+# Errorbars
+###############################################################################
+
+errorbar.capsize            : 3
+
+###############################################################################
+# Scatter
+###############################################################################
+
+scatter.marker              : o
+scatter.edgecolors          : face
+
+###############################################################################
+# Histograms
+###############################################################################
+
+hist.bins                   : 30
+
+###############################################################################
+# Images
+###############################################################################
+
+image.aspect                : equal
+image.interpolation         : nearest
+image.cmap                  : viridis
+image.origin                : upper
+
+###############################################################################
+# Contours
+###############################################################################
+
+contour.negative_linestyle  : dashed
+
+###############################################################################
+# Grid
+###############################################################################
+
+grid.color                  : #DDDDDD
+grid.linestyle              : --
+grid.linewidth              : 0.5
+grid.alpha                  : 0.8
+
+###############################################################################
+# Major Ticks
+###############################################################################
+
+xtick.direction             : out
+ytick.direction             : out
+
+xtick.major.size            : 4
+ytick.major.size            : 4
+
+xtick.major.width           : 1.0
+ytick.major.width           : 1.0
+
+xtick.major.pad             : 3
+ytick.major.pad             : 3
+
+###############################################################################
+# Minor Ticks
+###############################################################################
+
+xtick.minor.visible         : True
+ytick.minor.visible         : True
+
+xtick.minor.size            : 2
+ytick.minor.size            : 2
+
+xtick.minor.width           : 0.8
+ytick.minor.width           : 0.8
+
+###############################################################################
+# Legend
+###############################################################################
+
+legend.frameon              : False
+legend.fancybox             : False
+
+legend.loc                  : best
+
+legend.handlelength         : 1.5
+legend.handleheight         : 0.7
+
+legend.handletextpad        : 0.4
+legend.columnspacing        : 1.2
+
+legend.borderaxespad        : 0.4
+legend.labelspacing         : 0.3
+
+legend.markerscale          : 1.0
+
+###############################################################################
+# Boxplots
+###############################################################################
+
+boxplot.notch               : False
+boxplot.patchartist         : False
+boxplot.showmeans           : False
+boxplot.showcaps            : True
+boxplot.showbox             : True
+boxplot.showfliers          : True
+boxplot.showfliers          : True
+
+###############################################################################
+# Paths
+###############################################################################
+
+path.simplify               : True
+path.simplify_threshold     : 0.1
+agg.path.chunksize          : 0
+
+###############################################################################
+# PDF/PS
+###############################################################################
+
+pdf.compression             : 6
+
+###############################################################################
+# Animation
+###############################################################################
+
+animation.embed_limit       : 40
+
+###############################################################################
+# Date formatting
+###############################################################################
+
+date.autoformatter.year     : %Y
+date.autoformatter.month    : %b %Y
+date.autoformatter.day      : %d %b
+
+###############################################################################
+# Interactive
+###############################################################################
+
+toolbar                     : toolbar2
+keymap.quit                 : ctrl+w
+
+###############################################################################
+# End
+###############################################################################

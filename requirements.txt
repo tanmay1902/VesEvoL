@@ -1,0 +1,36 @@
+# Core numerical / data stack
+numpy
+pandas
+scipy
+scikit-image
+
+# Image I/O, GUI dialogs, and interactive parameter tuning
+opencv-python
+easygui
+matplotlib
+alive-progress
+
+# Particle/segmentation tracking
+trackpy
+
+# Deep-learning segmentation backends
+tensorflow          # required for StarDist (default backend, see detect_and_track.py)
+torch                # required for Cellpose
+stardist
+csbdeep
+cellpose
+
+# --- Optional GPU acceleration for mother detection (mother_detection.py) ---
+# Not required — the pipeline auto-detects CuPy/CUDA availability and falls
+# back to a CPU (scikit-image) code path if these are missing. Install a
+# cupy build matching your local CUDA toolkit version, e.g.:
+#   pip install cupy-cuda12x
+# cupy-cudaXXX
+
+# --- Not yet on PyPI / local project modules (to be added to this repo) ---
+# modules.read_czi_tiff, modules.global_rect_roi, modules.slicer,
+# modules.results, modules.savenpzraw, modules.deconvulation,
+# modules.pre_process, modules.image_buildFFT, modules.image_wavelet2d_gauss,
+# curvature_plot_metric
+# `modules.read_czi_tiff` likely needs a CZI/TIFF reader such as `aicspylibczi`,
+# `czifile`, or `tifffile` — pin the exact package once that module is added.
