@@ -1,195 +1,790 @@
-# Mother–Daughter Vesicle Detection & Tracking Pipeline
+# VesEvoL — Vesicle Evolution over Long time
 
-Supplementary code for **[Paper Title — add citation once available]**.
+**VesEvoL** is an image-analysis framework developed to study the evolution of vesicle shape parameters over extended time periods using microscopy image sequences.
 
-This repository contains the image-analysis pipeline used to detect a large "mother"
-vesicle/cell boundary in each frame of a time-lapse microscopy stack, detect and
-locally track smaller "daughter" vesicles inside/around it, and quantify their
-geometric contacts (mother–daughter and daughter–daughter) over time.
+The software accompanies the paper:
 
-> **Status: pre-release.** This repo currently contains the three core driver
-> scripts (`main.py`, `mother_detection.py`, `detect_and_track.py`). The
-> `modules/` helper package and the plotting / raw-data-processing scripts are
-> being added — see [Repository status](#repository-status) below.
+> **Tanmay Pandey, Rajni Kudawlaa, Jeyanth Varshan B S, Chetana Devarakonda, Aritra Chatterjee, and Tripta Bhatia.**  
+> *Evolution of Vesicle Shape Parameters Based on A Deep-Learning Based Image Analysis Framework Over Extended Time Periods.*  
+> [Journal], 2026. DOI: [pending]
 
 ---
 
-## Pipeline overview
+## Overview
 
+VesEvoL (**Vesicle Evolution over Long time**) provides an image-analysis workflow for processing time-lapse microscopy data of vesicles.
+
+The pipeline is designed to:
+
+- Detect the large **mother vesicle** boundary.
+- Detect smaller **daughter vesicles** around/inside the mother vesicle.
+- Track daughter vesicles over consecutive frames.
+- Quantify vesicle geometry and shape parameters.
+- Identify mother–daughter and daughter–daughter contacts.
+- Calculate curvature-related parameters.
+- Analyze vesicle area evolution over time.
+- Generate polar plots and karyographs.
+- Validate segmentation performance.
+- Produce downstream figures for quantitative analysis.
+
+The repository contains both the **core image-analysis pipeline** and the **downstream plotting/analysis scripts** used for processing the resulting datasets.
+
+---
+
+## Repository structure
+
+```text
+VesEvoL/
+│
+├── main.py
+├── mother_detection.py
+├── detect_and_track.py
+├── curvature_plot_metric.py       # required but missing from supplied archive
+│
+├── modules/
+│   ├── read_czi_tiff.py
+│   ├── global_rect_roi.py
+│   ├── slicer.py
+│   ├── deconvulation.py
+│   ├── results.py
+│   ├── savenpzraw.py
+│   ├── pre_process.py
+│   ├── image_buildFFT.py
+│   ├── image_wavelet2d_gauss.py
+│   └── image_edgedet.py
+│
+├── plot_curvature/
+│   ├── divergence_MSS_MLS_Binned.py
+│   ├── heatmap.py
+│   ├── plot_curvature_population.py
+│   ├── plot_histogram.py
+│   └── utils.py
+│
+├── plot_normalized_area/
+│   ├── plot_binned_area.py
+│   ├── plot_single_exp.py
+│   └── utils.py
+│
+├── plot_polar/
+│   ├── Figure-preparation.py
+│   ├── PolarPlot.py
+│   ├── mystyle.py
+│   └── mystyle.mplstyle
+│
+├── plot_segmentation/
+│   ├── pipeline_validation_from_csv.py
+│   ├── pipeline_validation_data.csv
+│   └── mystyle.py
+│
+├── requirements.txt
+├── CITATION.cff
+├── LICENSE
+├── index.html
+├── README.md
+│
+└── docs/
+    └── VesEvoL_Documentation.docx
 ```
-main.py
- │
- ├─ 1. read_directory()                 select a folder of .czi/.tif stacks
- │
- ├─ For each file:
- │   ├─ load_stack_efficient()          load stack, split into per-frame arrays
- │   ├─ select_frame_range()            crop to a frame range (interactive)
- │   ├─ select_roi_per_frame_ranges()   crop to a spatial ROI (interactive / reused)
- │   │
- │   ├─ Step 1 — Mother detection            (mother_detection.py)
- │   │   ├─ MotherTuner.tune()               interactive slider GUI to pick
- │   │   │                                   Frangi/wavelet/threshold parameters
- │   │   └─ detect_mother_stack_parallelized()
- │   │       ├─ analyze_mother_frame_gpu_fast() / _cpu()
- │   │       │     wavelet or Sobel gradient → multi-scale Frangi vesselness
- │   │       │     → skeletonize → contour → shape/temporal scoring
- │   │       ├─ per-frame polar curvature profile (theta_grid / kappa_grid)
- │   │       └─ writes mother/mother_metrics.csv, overlay PNGs, curvature .npy
- │   │
- │   ├─ (optional) Deconvolution              (modules/deconvulation.py)
- │   │
- │   ├─ Step 2 — Daughter detection & local tracking (detect_and_track.py)
- │   │   ├─ process_daughters_parallel()
- │   │   │     per-frame StarDist / Cellpose instance segmentation, restricted
- │   │   │     to candidates near/inside the mother boundary
- │   │   ├─ tracking()
- │   │   │     trackpy linking across frames + KD-tree contact detection
- │   │   │     (mother↔daughter "MLS" and daughter↔daughter "MSS" contacts)
- │   │   └─ writes daughter_tracking_local.csv, segmented/tracked overlay PNGs
- │   │
- │   └─ compile_experiment_data()             (modules/results.py)
- │       writes <file>/mother.csv and <file>/daughter.csv
- │
- └─ 2. Combined summary
-     reads every per-file mother.csv / daughter.csv back from disk and
-     concatenates them into mother_all.csv / inner_daughter_all.csv
-```
 
-Execution mode (Parallel vs. Sequential) is chosen once per run:
-- **Parallel** — spreads frames across CPU worker processes (faster, no live
-  progress bar; GPU segmentation is disabled in this mode, see below).
-- **Sequential** — single process, one frame at a time, with a live progress bar.
-
-Mother detection prefers GPU (CuPy) automatically if available and falls back to
-CPU (scikit-image `frangi`) otherwise. Daughter segmentation can use a GPU-backed
-StarDist/Cellpose model, but only in Sequential mode — a live CUDA/TensorFlow
-context cannot be shared across the multiple worker processes that Parallel mode
-spawns, so `parallel=True` + `use_gpu=True` automatically falls back to
-sequential GPU execution (this is logged to the console when it happens).
+---
 
 ## Repository status
 
 | Component | Status |
 |---|---|
-| `main.py` | ✅ included |
-| `mother_detection.py` | ✅ included |
-| `detect_and_track.py` | ✅ included |
-| `modules/` (`read_czi_tiff`, `global_rect_roi`, `slicer`, `results`, `savenpzraw`, `deconvulation`, `pre_process`, `image_buildFFT`, `image_wavelet2d_gauss`) | ⏳ to be added |
-| `curvature_plot_metric.py` | ⏳ to be added |
-| Plotting / downstream analysis scripts | ⏳ to be added |
-| Example / test data | ⏳ to be added |
+| `main.py` | ✅ Included |
+| `mother_detection.py` | ✅ Included |
+| `detect_and_track.py` | ✅ Included |
+| `modules/` helper package | ✅ Included |
+| `plot_curvature/` | ✅ Included |
+| `plot_normalized_area/` | ✅ Included |
+| `plot_polar/` | ✅ Included |
+| `plot_segmentation/` | ✅ Included |
+| `requirements.txt` | ✅ Included |
+| `CITATION.cff` | ✅ Included |
+| `LICENSE` | ✅ Included |
+| `index.html` | ✅ Included |
+| DOCX documentation | ✅ Included |
+| `curvature_plot_metric.py` | ⚠️ Missing from supplied archive |
+| Example microscopy stacks | Not included |
 
-The three scripts here are not independently runnable yet because they import
-from the `modules/` package and `curvature_plot_metric.py` above, which are not
-in this commit. This is expected during incremental upload — once those are
-added the pipeline can be run end-to-end as described below.
+### Important
 
-## Installation
+`mother_detection.py` imports:
 
-The pipeline was built around a mix of CPU and (optional) GPU-accelerated
-libraries. We recommend a dedicated conda/mamba environment, since two of the
-GPU dependencies (`tensorflow`, `cupy`) are much easier to get working via
-conda-forge than pip on most systems.
+```python
+from curvature_plot_metric import compute_curvature
+```
+
+However, `curvature_plot_metric.py` was **not present in the supplied `VF.zip`**.
+
+Therefore, the repository as supplied is not completely self-contained/runnable until this file is added or the corresponding functionality is restored.
+
+---
+
+# Installation
+
+A dedicated Conda environment is recommended because the pipeline uses a combination of scientific Python, image-processing, tracking, and deep-learning libraries.
+
+## Create the environment
 
 ```bash
-conda create -n vesicle-pipeline python=3.10
-conda activate vesicle-pipeline
+conda create -n vesevol python=3.10
+conda activate vesevol
+```
+
+## Install dependencies
+
+```bash
 pip install -r requirements.txt
 ```
 
-See [`requirements.txt`](requirements.txt) for the full dependency list and
-notes on optional GPU packages (`cupy`, `tensorflow`-GPU, `torch`-CUDA,
-`cellpose`, `stardist`). The pipeline runs on CPU only if none of the GPU
-extras are installed — it detects this automatically and prints which mode it
-is using.
+The pipeline uses packages including:
 
-## Usage
+- NumPy
+- Pandas
+- SciPy
+- scikit-image
+- OpenCV
+- Matplotlib
+- EasyGUI
+- Trackpy
+- alive-progress
+- TensorFlow
+- StarDist
+- CSBDeep
+- PyTorch
+- Cellpose
+- CuPy
+
+Not every dependency is necessarily required for every execution path.
+
+---
+
+# Core pipeline
+
+The main workflow is controlled through:
+
+```text
+main.py
+```
+
+Run it with:
 
 ```bash
 python main.py
 ```
 
-The script is interactive (via `easygui` dialog boxes and, for mother-detection
-parameter tuning, a Matplotlib slider GUI) and will prompt you to:
+The pipeline interactively guides the user through the analysis.
 
-1. Choose the folder containing the microscopy stacks to process.
-2. Optionally reuse a previously-defined ROI size.
-3. Choose **Parallel** or **Sequential** execution mode for the whole run.
-4. For the first file, interactively tune the mother-detection parameters
-   (Gaussian sigma, wavelet scale, threshold) using the slider GUI, and select
-   the frame range / spatial ROI.
+The general workflow is:
 
-Each input file `foo.czi` produces `results_v2/foo/` containing:
-
+```text
+Microscopy stack
+       │
+       ▼
+Load image stack
+       │
+       ▼
+Select frame range
+       │
+       ▼
+Select spatial ROI
+       │
+       ▼
+Mother vesicle detection
+       │
+       ▼
+Mother geometry + curvature
+       │
+       ▼
+Optional deconvolution
+       │
+       ▼
+Daughter vesicle segmentation
+       │
+       ▼
+Daughter filtering
+       │
+       ▼
+Daughter tracking
+       │
+       ▼
+Contact classification
+       │
+       ▼
+Per-file CSV results
+       │
+       ▼
+Combined datasets
+       │
+       ▼
+Downstream analysis
+       │
+       ├── Curvature
+       ├── Normalized area
+       ├── Polar/karyograph
+       └── Segmentation validation
 ```
-results_v2/foo/
-├── mother.csv                    per-frame mother-boundary geometry (final)
-├── daughter.csv                  per-frame daughter geometry + contacts (final)
-├── detections.npz                (only if SAVE_RAW_NPZ = True)
-├── mother/
-│   ├── mother_metrics.csv
-│   ├── raw/, overlay/            per-frame diagnostic images
-│   └── theta_grid_radians.npy, kappa_normalized_vs_theta.npy
-└── (segmentation/tracking working folders, overlay PNGs, etc.)
+
+---
+
+# 1. Mother vesicle detection
+
+`mother_detection.py` detects the large mother vesicle boundary in each frame.
+
+The workflow includes:
+
+1. Image normalization.
+2. Gaussian filtering.
+3. Gradient/wavelet processing.
+4. Multi-scale Frangi vesselness filtering.
+5. Thresholding.
+6. Skeletonization.
+7. Contour extraction.
+8. Candidate contour scoring.
+9. Temporal consistency scoring.
+10. Mother-vesicle geometry calculation.
+11. Polar curvature calculation.
+
+The mother contour is selected using a combination of:
+
+- Circularity.
+- Ellipse similarity.
+- Area.
+- Aspect ratio.
+- Centroid displacement.
+- Radius change between consecutive frames.
+
+The pipeline can use a GPU-accelerated CuPy implementation when a suitable CUDA environment is available.
+
+If GPU support is unavailable, the code falls back to CPU processing.
+
+---
+
+# 2. Daughter vesicle detection
+
+`detect_and_track.py` performs daughter-vesicle detection.
+
+Two segmentation backends are supported by the supplied code:
+
+### StarDist
+
+```text
+StarDist2D
+2D_versatile_fluo
 ```
 
-After all files in the folder are processed, you'll be prompted for a name for
-the combined-results folder, which will contain:
+### Cellpose
 
-```
-results_v2/<combined_results>/
-├── mother_all.csv            mother.csv for every file, with a `video` column
-└── inner_daughter_all.csv    daughter.csv for every file, with a `video` column
+```text
+CellposeModel
+cpsam
 ```
 
-### Configuration flags (top of `main.py`)
+Detected objects are filtered according to their:
 
-| Flag | Default | Effect |
-|---|---|---|
-| `SETTING_DECONVULATION` | `False` | Run Richardson-Lucy deconvolution on frames before daughter detection. |
-| `SAVE_RAW_NPZ` | `False` | Also cache the raw per-frame image/mask stack to `detections.npz`. This is the single largest artifact per file (memory and disk); leave off unless you specifically need it for offline debugging. |
+- Position relative to the mother vesicle.
+- Area.
+- Circularity.
 
-## Outputs — column reference
+The supplied workflow restricts candidate daughters to regions near or inside the mother-vesicle boundary.
 
-**`mother.csv` / `mother_metrics.csv`**: `frame`, `area_um2`, `perimeter_um`,
-`radius_um`, `centroid_x`, `centroid_y`, `score` (detection confidence),
-`perimeter_px`, `area_px`, `circularity`.
+---
 
-**`daughter.csv` / `daughter_tracking_local.csv`**: `id` (track id), `frame`,
-`area`, `centroid_x`, `centroid_y`, `daughter_contour`, `contact_class`
-(`MLS` = touching the mother, `MSS` = touching another daughter, `FREE` =
-touching neither), `contact_point_x/y`, `interacting_with_id` (for `MSS` rows).
+# 3. Daughter tracking
 
-## Hardware notes
+After detection, daughter vesicles can be linked between frames using:
 
-- Mother detection: GPU path requires a working CUDA toolkit + `cupy` matching
-  your CUDA version. The script auto-detects `CUDA_PATH` on Windows and probes
-  that a CuPy kernel actually compiles (not just that a device is visible)
-  before enabling GPU mode, and prints a clear reason if it falls back to CPU.
-- Daughter segmentation: StarDist (TensorFlow) and/or Cellpose (PyTorch) —
-  whichever is installed and set as `SEGMENTATION_BACKEND` in
-  `detect_and_track.py` (default: `"stardist"`).
-- Multiprocessing (`Parallel` mode) is capped to a small worker count by
-  default to avoid OpenBLAS/BLAS thread-oversubscription crashes on shared
-  workstations; adjust `n_workers` in the relevant function calls if you have
-  a dedicated machine with more cores.
+```text
+trackpy.link_df
+```
 
-## Citation
+The supplied tracking configuration uses:
 
-If you use this code, please cite the associated paper:
+```text
+search_range = 10
+memory       = 5
+```
 
-> [Author list]. *[Paper title]*. [Journal], [Year]. DOI: [pending]
+Short tracks can subsequently be removed using trackpy's filtering functionality.
 
-See [`CITATION.cff`](CITATION.cff).
+Each tracked daughter receives a track ID.
 
-## Contact
+---
 
-- ms22113@iisermohali.ac.in
-- itstanmaypandey@gmail.com
-- caritra@iitg.ac.in
+# 4. Contact classification
 
-## License
+The pipeline identifies interactions between vesicles.
 
-Released under the [MIT License](LICENSE) unless your journal/funder requires
-otherwise — see that file for details, and update it before publishing if you
-need a different license.
+Two principal contact classes are used:
+
+| Class | Meaning |
+|---|---|
+| `MLS` | Mother–daughter contact |
+| `MSS` | Daughter–daughter contact |
+| `FREE` | Daughter touching neither |
+
+Nearest-point calculations use KD-tree based distance queries.
+
+For mother contacts, the analysis also records the contact location and local curvature information.
+
+For daughter–daughter contacts, the interacting daughter track ID is recorded.
+
+---
+
+# 5. Output files
+
+For an input file such as:
+
+```text
+vesicle_001.czi
+```
+
+the pipeline creates a result directory similar to:
+
+```text
+results_v2/
+└── vesicle_001/
+    ├── mother.csv
+    ├── daughter.csv
+    ├── detections.npz
+    │
+    └── mother/
+        ├── mother_metrics.csv
+        ├── raw/
+        ├── overlay/
+        ├── theta_grid_radians.npy
+        └── kappa_normalized_vs_theta.npy
+```
+
+`detections.npz` is generated only when:
+
+```python
+SAVE_RAW_NPZ = True
+```
+
+---
+
+# Combined results
+
+After processing multiple input files, the pipeline combines the per-file results.
+
+The combined directory contains:
+
+```text
+results_v2/
+└── <combined_results>/
+    ├── mother_all.csv
+    └── inner_daughter_all.csv
+```
+
+The combined datasets include a `video` column identifying the source experiment/file.
+
+---
+
+# Output columns
+
+## Mother data
+
+Important columns include:
+
+| Column | Description |
+|---|---|
+| `frame` | Frame index |
+| `area_um2` | Mother area in µm² |
+| `area_px` | Mother area in pixels |
+| `perimeter_um` | Perimeter in µm |
+| `perimeter_px` | Perimeter in pixels |
+| `radius_um` | Equivalent radius |
+| `centroid_x` | X-coordinate of centroid |
+| `centroid_y` | Y-coordinate of centroid |
+| `score` | Detection confidence score |
+| `circularity` | Circularity metric |
+
+Circularity is calculated as:
+
+```text
+4πA / P²
+```
+
+and capped at 1.0.
+
+---
+
+## Daughter data
+
+Important columns include:
+
+| Column | Description |
+|---|---|
+| `id` | Daughter track ID |
+| `frame` | Frame index |
+| `area` | Daughter area |
+| `centroid_x` | X-coordinate |
+| `centroid_y` | Y-coordinate |
+| `daughter_contour` | Daughter boundary contour |
+| `contact_class` | MLS, MSS, or FREE |
+| `contact_point_x` | Contact-point X-coordinate |
+| `contact_point_y` | Contact-point Y-coordinate |
+| `interacting_with_id` | Other daughter ID for MSS events |
+
+---
+
+# Downstream analysis
+
+The repository includes several dedicated analysis directories.
+
+---
+
+## `plot_curvature/`
+
+This directory contains scripts for curvature-based analysis.
+
+### `plot_curvature_population.py`
+
+Used for population-level curvature analysis and figure generation.
+
+### `heatmap.py`
+
+Generates curvature-related heatmaps.
+
+### `plot_histogram.py`
+
+Generates histogram-based curvature analysis, including the fitted distributions implemented in the script.
+
+### `divergence_MSS_MLS_Binned.py`
+
+Performs binned comparison/divergence analysis between:
+
+```text
+MSS
+```
+
+and
+
+```text
+MLS
+```
+
+events.
+
+### `utils.py`
+
+Contains utilities for:
+
+- Reading experiment/result directories.
+- Loading trajectories.
+- Processing vesicle trajectories.
+- Time binning.
+
+---
+
+# `plot_normalized_area/`
+
+This directory contains analysis scripts for vesicle area evolution.
+
+### `plot_binned_area.py`
+
+Collects and processes normalized-area measurements and generates binned figures.
+
+### `plot_single_exp.py`
+
+Performs:
+
+- Vesicle-level normalization.
+- Time-series processing.
+- Single-exponential fitting.
+- Parameter extraction.
+- Parameter visualization.
+- Vesicle-level scatter plots.
+
+### `utils.py`
+
+Provides utilities for:
+
+- CSV loading.
+- Vesicle normalization.
+- Time binning.
+- Condition aggregation.
+
+---
+
+# `plot_polar/`
+
+This directory contains polar and karyograph-related analysis.
+
+### `PolarPlot.py`
+
+Performs geometry calculations and generates:
+
+- Polar plots.
+- Karyographs.
+- Combined karyographs.
+- Contact-curvature plots.
+- Contact-angle analysis.
+
+### `Figure-preparation.py`
+
+Provides functionality for preparing composite figures from experiment/result directories.
+
+### Plot style
+
+```text
+mystyle.py
+mystyle.mplstyle
+```
+
+contain plotting-style definitions used by the analysis scripts.
+
+---
+
+# `plot_segmentation/`
+
+This directory contains segmentation-validation code.
+
+### `pipeline_validation_from_csv.py`
+
+Reads segmentation validation measurements from CSV and generates comparative analysis/plots.
+
+### `pipeline_validation_data.csv`
+
+Contains the supplied validation dataset used by the validation script.
+
+---
+
+# Configuration
+
+Several parameters are configured directly in the Python scripts.
+
+Important options include:
+
+### Deconvolution
+
+```python
+SETTING_DECONVULATION = False
+```
+
+When enabled, Richardson–Lucy deconvolution is applied before daughter analysis.
+
+### Raw data saving
+
+```python
+SAVE_RAW_NPZ = False
+```
+
+When enabled, raw image/mask information is stored in:
+
+```text
+detections.npz
+```
+
+Because this can substantially increase disk usage, it is disabled by default.
+
+### Segmentation backend
+
+The supplied daughter-processing code uses:
+
+```python
+SEGMENTATION_BACKEND = "stardist"
+```
+
+The exact backend configuration should be checked in `detect_and_track.py` before running an analysis.
+
+---
+
+# Parallel vs sequential execution
+
+The core pipeline supports parallel and sequential execution.
+
+### Parallel mode
+
+Parallel processing distributes frames across worker processes.
+
+Advantages:
+
+- Faster CPU processing.
+- Useful for large datasets.
+
+Limitations:
+
+- GPU segmentation cannot be shared between worker processes.
+- No live progress bar in the same way as sequential execution.
+
+### Sequential mode
+
+Sequential execution processes frames in the main process.
+
+Advantages:
+
+- Supports GPU-based segmentation.
+- Provides live progress information.
+- Maintains temporal state directly between frames.
+
+---
+
+# GPU support
+
+The mother-detection code contains a CuPy-based GPU implementation.
+
+GPU operation requires a compatible:
+
+- NVIDIA GPU
+- CUDA installation
+- CuPy build
+
+The code checks whether the CUDA environment is actually usable rather than relying only on device visibility.
+
+If GPU initialization fails, CPU processing can be used instead.
+
+---
+
+# Input data
+
+The supplied code is designed to work with microscopy image stacks, including:
+
+```text
+CZI
+TIFF
+```
+
+The repository does **not** contain example microscopy stacks.
+
+Users should therefore provide their own compatible experimental data.
+
+---
+
+# Important path configuration for plotting
+
+Some downstream plotting scripts contain machine-specific data paths.
+
+Before running these scripts, inspect variables such as:
+
+```python
+DATA_ROOT
+```
+
+and update them to the location of the processed results on your system.
+
+For example:
+
+```python
+DATA_ROOT = r"/path/to/results"
+```
+
+The exact path variable differs between scripts.
+
+---
+
+# Documentation
+
+A more detailed documentation file is included at:
+
+```text
+docs/VesEvoL_Documentation.docx
+```
+
+An interactive HTML version of the documentation is also provided:
+
+```text
+index.html
+```
+
+The HTML documentation describes:
+
+- Installation.
+- Pipeline stages.
+- Configuration.
+- Core functions.
+- Output datasets.
+- Plotting modules.
+- Hardware considerations.
+- Citation and release information.
+
+---
+
+# Citation
+
+If you use VesEvoL in your work, please cite the associated paper:
+
+> **Pandey, T.; Kudawlaa, R.; Varshan B S, J.; Devarakonda, C.; Chatterjee, A.; Bhatia, T.**  
+> *Evolution of Vesicle Shape Parameters Based on A Deep-Learning Based Image Analysis Framework Over Extended Time Periods.*  
+> [Journal], 2026. DOI: [pending]
+
+A machine-readable citation is provided in:
+
+```text
+CITATION.cff
+```
+
+The repository URL, journal, paper DOI, and Zenodo DOI should be filled in once the corresponding identifiers are available.
+
+---
+
+# License
+
+VesEvoL is distributed under the:
+
+**MIT License**
+
+See:
+
+```text
+LICENSE
+```
+
+for the complete license text.
+
+---
+
+# Repository release notes
+
+The supplied repository has been audited for the major source components.
+
+### Included
+
+- Core detection/tracking pipeline.
+- Supporting modules.
+- Curvature analysis.
+- Normalized-area analysis.
+- Polar/karyograph analysis.
+- Segmentation validation.
+- Citation metadata.
+- License.
+- HTML documentation.
+- DOCX documentation.
+
+### Remaining action
+
+The file:
+
+```text
+curvature_plot_metric.py
+```
+
+is imported by `mother_detection.py` but was not present in the supplied `VF.zip`.
+
+This file should be added before claiming that the repository is completely self-contained and runnable.
+
+The downstream plotting scripts should also be checked for machine-specific data paths before distribution.
+
+---
+
+## Authors
+
+**Tanmay Pandey**  
+**Rajni Kudawlaa**  
+**Jeyanth Varshan B S**  
+**Chetana Devarakonda**  
+**Aritra Chatterjee**  
+**Tripta Bhatia**
+
+---
+
+## Project
+
+**VesEvoL — Vesicle Evolution over Long time**
+
+Developed as supplementary software for:
+
+> *Evolution of Vesicle Shape Parameters Based on A Deep-Learning Based Image Analysis Framework Over Extended Time Periods*
