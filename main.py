@@ -48,7 +48,7 @@ def main():
 
     tot_dir = len(files)
     set_pixel = False
-    main_out = Path(directory_path) / 'results_v2'
+    main_out = Path(directory_path) / 'results'
 
     roi_size = None
     if eg.ynbox("Want to use prev roi size defined from last run? ", "SMLB"):
@@ -100,7 +100,7 @@ def main():
 
         # 1. Load & Crop Stack Elements
         try:
-            stack = load_stack_efficient(file)
+            stack = load_stack_efficient(file,step=5)
             stack = np.asarray(stack)
             if stack.ndim == 3:
                 frames = [stack[i] for i in range(stack.shape[0])]
